@@ -38,7 +38,9 @@ class Bot extends BaseBot{
             }
 
             if(date&&subject){
-                console.log(date);
+                let array = date.split('-');
+                let month = array[1];
+                let year = array[2];
                 function toAstro(cMonth,cDay) {
                     var s   = "\u9b54\u7faf\u6c34\u74f6\u53cc\u9c7c\u767d\u7f8a\u91d1\u725b\u53cc\u5b50\u5de8\u87f9\u72ee\u5b50\u5904\u5973\u5929\u79e4\u5929\u874e\u5c04\u624b\u9b54\u7faf";
                     var arr = [20,19,21,21,21,22,23,23,23,23,22,22];//1月到12月
@@ -46,7 +48,7 @@ class Bot extends BaseBot{
                 }
 
                 return {
-                    outputSpeech : '水瓶座'
+                    outputSpeech : toAstro(month,year)
                 };
             }
         });
