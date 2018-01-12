@@ -1,6 +1,16 @@
 
 var BaseBot = require('./../lib/Bot');
-var tcp = require('./service')
+var net = require('net');
+
+var HOST = '127.0.0.1';
+var PORT = 6969;
+
+// 创建一个TCP服务器实例，调用listen函数开始监听指定端口
+// 传入net.createServer()的回调函数将作为”connection“事件的处理函数
+// 在每一个“connection”事件中，该回调函数接收到的socket对象是唯一的
+
+
+console.log('Server listening on ' + HOST +':'+ PORT);
 
 class Bot extends BaseBot{
     constructor (postData) {
@@ -38,11 +48,10 @@ class Bot extends BaseBot{
                 };
             }
 
-            if(isDialogStateCompleted()){
+            if(data&&subject){
                 let array = date.split('-');
                 let month = array[1];
                 let year = array[2];
-                let lunardate = LunarDate.GetLunarDay(array[0],array[1], array[2])
                 
                 function toAstro(cMonth,cDay) {
                     var s   = "\u9b54\u7faf\u6c34\u74f6\u53cc\u9c7c\u767d\u7f8a\u91d1\u725b\u53cc\u5b50\u5de8\u87f9\u72ee\u5b50\u5904\u5973\u5929\u79e4\u5929\u874e\u5c04\u624b\u9b54\u7faf";
@@ -50,7 +59,28 @@ class Bot extends BaseBot{
                     return s.substr(cMonth*2 - (cDay < arr[cMonth-1] ? 2 : 0),2) + "\u5ea7";//座
                 }
 
-                tcp.socket.write('I am Chuck Norris!');
+                net.createServer(function(sock) {
+
+                    // 我们获得一个连接 - 该连接自动关联一个socket对象
+                    console.log('CONNECTED: ' +
+                        sock.remoteAddress + ':' + sock.remotePort);
+
+                    // 为这个socket实例添加一个"data"事件处理函数
+                    sock.on('data', function(data) {
+                        console.log('DATA ' + sock.remoteAddress + ': ' + data);
+                        // 回发该数据，客户端将收到来自服务端的数据
+                        sock.write('You said "' + data + '"');
+                    });
+
+                    // 为这个socket实例添加一个"close"事件处理函数
+                    sock.on('close', function(data) {
+                        console.log('CLOSED: ' +
+                            sock.remoteAddress + ' ' + sock.remotePort);
+                    });
+
+                }).listen(PORT, HOST);
+
+                console.log('Server listening on ' + HOST +':'+ PORT);
 
                 return {
                     outputSpeech : toAstro(month,year)
